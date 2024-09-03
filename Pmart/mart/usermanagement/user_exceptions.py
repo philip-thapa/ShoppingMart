@@ -3,3 +3,6 @@ class UserException(Exception):
 
 class OTPException(Exception):
     pass
+
+class AddressException(Exception):
+    pass

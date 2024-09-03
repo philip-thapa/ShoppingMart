@@ -21,3 +21,8 @@ class AUTHENTICATION_MSG:
 class ERROR_MSG:
 
     INVALID_OTP = 'Invalid OTP'
+
+
+class ADDRESS_CONSTANTS:
+
+    ADDRESS_TYPES = ["Home", "work", "Other"]

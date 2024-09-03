@@ -5,8 +5,9 @@ from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from rest_framework_simplejwt.views import TokenObtainPairView
 
 from usermanagement.constants import ERROR_MSG
+from usermanagement.managers.address_manager import AddressManager
 from usermanagement.managers.authentication_manager import SignUpManager, OTPManager
-from usermanagement.user_exceptions import UserException, OTPException
+from usermanagement.user_exceptions import UserException, OTPException, AddressException
 
 
 @authentication_classes([])
@@ -90,3 +91,52 @@ class MyTokenObtainPairView(TokenObtainPairView):
             if data.get('otp'):
                 return Response(ERROR_MSG.INVALID_OTP, 500)
             return Response(str(e), 500)
+
+
+class GetAllAddress(APIView):
+
+    def get(self, request):
+        try:
+            address = AddressManager.get_all_address(request.user)
+            return Response({'success': True}, 200)
+        except Exception as e:
+            return Response(str(e), 500)
+
+
+class AddAddress(APIView):
+
+    def get(self, request):
+        try:
+            AddressManager().add_new_address(request)
+            return Response({'success': True}, 200)
+        except AddressException as e:
+            return Response(str(e), 500)
+        except Exception as e:
+            return Response(str(e), 500)
+
+
+class EditAddress(APIView):
+
+    def get(self, request):
+        try:
+            address_id = request.data.get('addressId')
+            AddressManager(address_id).edit_address(request.data)
+            return Response({'success': True}, 200)
+        except AddressException as e:
+            return Response(str(e), 500)
+        except Exception as e:
+            return Response(str(e), 500)
+
+
+class RemoveAddress(APIView):
+
+    def get(self, request):
+        try:
+            address_id = request.data.get('addressId')
+            AddressManager(address_id).remove_address()
+            return Response({'success': True}, 200)
+        except AddressException as e:
+            return Response(str(e), 500)
+        except Exception as e:
+            return Response(str(e), 500)
+
