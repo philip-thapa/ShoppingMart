@@ -1,9 +1,12 @@
 from rest_framework.decorators import authentication_classes, permission_classes
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
+from rest_framework_simplejwt.views import TokenObtainPairView
 
-from usermanagement.managers.authentication_manager import SignUpManager
-from usermanagement.user_exceptions import UserException
+from usermanagement.constants import ERROR_MSG
+from usermanagement.managers.authentication_manager import SignUpManager, OTPManager
+from usermanagement.user_exceptions import UserException, OTPException
 
 
 @authentication_classes([])
@@ -16,6 +19,74 @@ class SignUp(APIView):
             SignUpManager(data).signup()
             return Response({'msg': 'success'}, 200)
         except UserException as e:
-            return Response(str(e), 400)
+            return Response(str(e), 500)
         except Exception as e:
             return Response(str(e), 500, exception=True)
+
+
+@authentication_classes([])
+@permission_classes([])
+class SendOTP(APIView):
+
+    def post(self, request):
+        try:
+            data = request.data
+            is_sign_in = True if data.get('otp') else False
+            OTPManager.send_otp(data.get('email', '').strip(), is_sign_in)
+            return Response({'success': True}, 200)
+        except UserException as e:
+            return Response(str(e), 500)
+        except OTPException as e:
+            return Response(str(e), 500)
+        except Exception as e:
+            return Response(str(e), 500, exception=True)
+
+
+@authentication_classes([])
+@permission_classes([])
+class ValidateOTP(APIView):
+
+    def post(self, request):
+        try:
+            data = request.data
+            otp = data.get('otp', '').strip()
+            email = data.get('email', '').strip()
+            return Response({'success': OTPManager.validate_otp(otp, email)}, 200)
+        except UserException as e:
+            return Response(str(e), 500)
+        except OTPException as e:
+            return Response(str(e), 500)
+        except Exception as e:
+            return Response(str(e), 500, exception=True)
+
+
+class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
+    @classmethod
+    def get_token(cls, user):
+        token = super(MyTokenObtainPairSerializer, cls).get_token(user)
+        return token
+
+    def validate(self, attrs):
+        try:
+            data = super().validate(attrs)
+            data["success"] = True
+            return data
+        except Exception as e:
+            raise UserException('Invalid credentials')
+
+
+class MyTokenObtainPairView(TokenObtainPairView):
+    serializer_class = MyTokenObtainPairSerializer
+
+    def post(self, request,  *args, **kwargs):
+        try:
+            data = request.data
+            otp = data.get('otp')
+            if otp:
+                data['password'] = otp
+            response = super(MyTokenObtainPairView, self).post(request,  *args, **kwargs)
+            return response
+        except Exception as e:
+            if data.get('otp'):
+                return Response(ERROR_MSG.INVALID_OTP, 500)
+            return Response(str(e), 500)
