@@ -43,7 +43,8 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'rest_framework',
     'rest_framework_simplejwt',
-    'usermanagement'
+    'usermanagement',
+    'categorymanagement'
 ]
 
 MIDDLEWARE = [
@@ -196,3 +197,4 @@ AUTHENTICATION_BACKENDS = [
     'email_otp_authentication.CustomModelBackend',
     'django.contrib.auth.backends.ModelBackend',
 ]
+

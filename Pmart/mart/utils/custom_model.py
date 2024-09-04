@@ -1,5 +1,6 @@
 from datetime import datetime
 from django.db import models
+from django.utils import timezone
 
 
 class CustomManager(models.Manager):
@@ -8,8 +9,8 @@ class CustomManager(models.Manager):
 
 
 class CustomModel(models.Model):
-    createdAt = models.DateTimeField(default=datetime.now)
-    modifiedAt = models.DateTimeField(default=datetime.now)
+    createdAt = models.DateTimeField(default=timezone.now)
+    modifiedAt = models.DateTimeField(default=timezone.now)
     isDeleted = models.BooleanField(default=False)
     objects = CustomManager()
 
@@ -18,8 +19,8 @@ class CustomModel(models.Model):
 
     def save(self, *args, **kwargs):
         if not self.id or not self.createdAt:
-            self.createdAt = datetime.now()
-        self.modifiedAt = datetime.now()
+            self.createdAt = timezone.now()
+        self.modifiedAt = timezone.now()
         super(CustomModel, self).save(*args, **kwargs)
 
     def delete(self, *args, **kwargs):

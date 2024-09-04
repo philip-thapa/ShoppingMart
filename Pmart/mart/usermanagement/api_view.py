@@ -88,7 +88,7 @@ class MyTokenObtainPairView(TokenObtainPairView):
             response = super(MyTokenObtainPairView, self).post(request,  *args, **kwargs)
             return response
         except Exception as e:
-            if data.get('otp'):
+            if request.data.get('otp'):
                 return Response(ERROR_MSG.INVALID_OTP, 500)
             return Response(str(e), 500)
 
@@ -98,14 +98,14 @@ class GetAllAddress(APIView):
     def get(self, request):
         try:
             address = AddressManager.get_all_address(request.user)
-            return Response({'success': True}, 200)
+            return Response({'success': True, 'addresses': address}, 200)
         except Exception as e:
             return Response(str(e), 500)
 
 
 class AddAddress(APIView):
 
-    def get(self, request):
+    def post(self, request):
         try:
             AddressManager().add_new_address(request)
             return Response({'success': True}, 200)
@@ -117,7 +117,7 @@ class AddAddress(APIView):
 
 class EditAddress(APIView):
 
-    def get(self, request):
+    def post(self, request):
         try:
             address_id = request.data.get('addressId')
             AddressManager(address_id).edit_address(request.data)
