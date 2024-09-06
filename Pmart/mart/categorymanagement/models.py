@@ -1,14 +1,16 @@
 from django.core.exceptions import ValidationError
 from django.db import models
 
+from usermanagement.models import CustomUser
 from utils.custom_model import CustomModel
 
 # Create your models here.
 
 class ProductCategory(CustomModel):
-    name = models.CharField(max_length=255, db_column='name')
+    name = models.CharField(max_length=255, db_column='name', unique=True)
     description = models.TextField(blank=True, db_column='description', null=True)
     status = models.BooleanField(db_column='status', default=True)
+    created_by = models.CharField(db_column='created_by', max_length=16, null=False, blank=False)
     parent_category = models.ForeignKey('self', db_column='parentCategory', on_delete=models.SET_NULL, null=True,
                                         blank=True, related_name='parent_categories')
 

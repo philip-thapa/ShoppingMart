@@ -1,6 +1,6 @@
-from datetime import datetime
 from django.db import models
 from django.utils import timezone
+from rest_framework.exceptions import ValidationError
 
 
 class CustomManager(models.Manager):
@@ -29,3 +29,17 @@ class CustomModel(models.Model):
 
     def hard_delete(self, *args, **kwargs):
         super(CustomModel, self).delete(*args, **kwargs)
+
+
+class DynamicValidationMixin:
+    REQUIRED_FIELDS = []
+
+    def clean(self):
+        for field in self.REQUIRED_FIELDS:
+            field_value = getattr(self, field, None)
+            if not field_value:
+                raise ValidationError(f"{field} is required.")
+
+    def save(self, *args, **kwargs):
+        self.clean()
+        super().save(*args, **kwargs)  # Call the model's default save method
