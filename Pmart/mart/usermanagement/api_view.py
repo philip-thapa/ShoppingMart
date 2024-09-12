@@ -8,6 +8,7 @@ from usermanagement.constants import ERROR_MSG
 from usermanagement.managers.address_manager import AddressManager
 from usermanagement.managers.authentication_manager import SignUpManager, OTPManager
 from usermanagement.user_exceptions import UserException, OTPException, AddressException
+from utils.validators import Validators
 
 
 @authentication_classes([])
@@ -82,6 +83,8 @@ class MyTokenObtainPairView(TokenObtainPairView):
     def post(self, request,  *args, **kwargs):
         try:
             data = request.data
+            if not Validators.email_validator(data.get('email')):
+                raise Exception('Invalid Email')
             otp = data.get('otp')
             if otp:
                 data['password'] = otp
