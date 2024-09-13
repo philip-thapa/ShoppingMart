@@ -8,6 +8,7 @@ import { login } from '../../../redux/authSlice';
 import CircularProgressLoader from '../../../components/CircularProgress';
 import Validator from '../../../utils/Validators';
 import ErrorMsg from '../../../components/ErrorMsg';
+import { Link } from 'react-router-dom';
 
 const SignIn = () => {
   const [form, setForm] = useState({ email: '', password: '', otp: '' });
@@ -113,7 +114,7 @@ const SignIn = () => {
         </Box>
         <Box sx={{ display: 'flex', justifyContent: 'space-between', width: '100%' }}>
           <Typography variant="subtitle1" sx={{ cursor: 'pointer', color: 'primary.main' }}>
-            Sign Up
+            <Link to='/signup'>Sign Up</Link>
           </Typography>
           <Typography
             variant="subtitle1" sx={{ cursor: 'pointer', color: 'primary.main' }}
