@@ -33,7 +33,7 @@ class SendOTP(APIView):
     def post(self, request):
         try:
             data = request.data
-            is_sign_in = True if data.get('otp') else False
+            is_sign_in = True if data.get('isOtp') else False
             OTPManager.send_otp(data.get('email', '').strip(), is_sign_in)
             return Response({'success': True}, 200)
         except UserException as e:

@@ -8,3 +8,7 @@ const authService = new HttpAxiosService(BASE_URL);
 export const signInService = (payload) => {
     return authService.post(Urls.SIGN_IN, payload);
 };
+
+export const sendOtpService = (payload) => {
+    return authService.post(Urls.SEND_OTP, payload);
+}

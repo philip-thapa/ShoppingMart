@@ -2,5 +2,6 @@ export class Urls {
     static API_PREFIX = '/api';
 
     static SIGN_IN = Urls.API_PREFIX + '/user/sign-in';
-    static SIGN_UP = Urls.TODO_API_PREFIX + '/user/sign-up';
+    static SIGN_UP = Urls.API_PREFIX + '/user/sign-up';
+    static SEND_OTP = Urls.API_PREFIX + '/user/send-otp';
 }
