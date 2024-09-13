@@ -11,7 +11,6 @@ const SignUp = () => {
   const OTP_STATUS = {
     NOT_SENT: 'NOT_SENT',
     SENT: 'SENT',
-    VERIFIED: 'VERIFIED'
   }
   const navigate = useNavigate();
   const [form, setForm] = useState({ firstName: '', lastName: '', email: '', otp: '', password: ''});
