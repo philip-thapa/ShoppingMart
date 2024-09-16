@@ -1,7 +1,8 @@
-from django.db import IntegrityError
+from django.db import IntegrityError, transaction
+from django.utils.datetime_safe import datetime
 
-from usermanagement.constants import GenderConstants, AUTHENTICATION_MSG
-from usermanagement.models import CustomUser
+from usermanagement.constants import GenderConstants
+from usermanagement.models import CustomUser, OtpRequests
 from usermanagement.user_exceptions import UserException, OTPException
 from utils.mail_handler import MailHandler
 from utils.otp_handler import OTP
@@ -35,7 +36,7 @@ class SignUpManager:
 
     def signup(self):
         self.validate_payload()
-        if not OTPManager.validate_otp(self.otp, self.email):
+        if not OTPManager(self.email).validate_otp(self.otp):
             raise OTPException('Invalid OTP')
         try:
             CustomUser.objects.create_user(
@@ -52,44 +53,46 @@ class SignUpManager:
 
 class OTPManager:
 
-    @staticmethod
-    def send_otp(email, is_sign_in=False):
-        if not email:
-            raise UserException('Email is required')
-        if not Validators.email_validator(email):
+    def __init__(self, email, header=None, message=None):
+        if not email.strip():
             raise UserException('Invalid Email')
+        if not Validators.email_validator(email):
+            raise UserException('Invalid Email format')
+        self.email = email.strip()
+        self.header = header
+        self.message = message
+        self.code = None
 
-        if not is_sign_in:
-            existing_users = CustomUser.objects.filter(email=email)
-            if existing_users:
-                raise UserException('User already exists')
-
-        otp = OTP(dict(email=email))
-        code = otp.generate_otp()
-        if code:
-            if is_sign_in:
+    def send_otp(self):
+        with transaction.atomic(using='default'):
+            otp_request = self.get_or_create_otp_request()
+            if otp_request.count >= 20:
+                raise OTPException('Otp limit exceeded')
+            otp = OTP(dict(email=self.email))
+            self.code = otp.generate_otp()
+            if self.code:
                 MailHandler.send_custom_mail(
-                    AUTHENTICATION_MSG.SIGN_IN_HEADER,
-                    AUTHENTICATION_MSG.SIGN_IN_BODY + '  ' + str(code),
-                    email
+                    self.header,
+                    self.message + '  ' + str(self.code),
+                    self.email
                 )
             else:
-                MailHandler.send_custom_mail(
-                    AUTHENTICATION_MSG.ACTIVATE_ACCOUNT_HEADER,
-                    AUTHENTICATION_MSG.ACTIVATE_ACCOUNT_BODY + '  ' + str(code),
-                    email
-                )
-        else:
-            raise OTPException('Failed to send OTP. Please try again')
+                raise OTPException('Failed to send OTP. Please try again')
+            otp_request.count += 1
+            otp_request.save()
 
-    @staticmethod
-    def validate_otp(otp, email):
-        if not otp or not email:
-            raise UserException('Otp and email are required')
+    def validate_otp(self, otp):
+        if not otp:
+            raise UserException('Otp is required')
+        self.code = otp
 
-        otp_obj = OTP(dict(email=email))
-        is_verified = otp_obj.verify(otp)
+        otp_obj = OTP(dict(email=self.email))
+        is_verified = otp_obj.verify(self.code)
 
         if is_verified:
             return True
         return False
+
+    def get_or_create_otp_request(self):
+        today = datetime.now()
+        return OtpRequests.objects.get_or_create(email=self.email, createdAt__date=today)[0]

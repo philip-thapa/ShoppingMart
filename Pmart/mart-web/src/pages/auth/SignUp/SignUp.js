@@ -3,9 +3,9 @@ import { TextField, Button, Container, Typography, Box } from '@mui/material';
 import CircularProgressLoader from '../../../components/CircularProgress';
 import { Link, useNavigate } from 'react-router-dom';
 import useAxios from '../../../useAxios';
-import SendIcon from '@mui/icons-material/Send';
-import { sendOtpService, signUpService, verifyOtpService } from './SignUp.service';
+import { sendSignUpOtpService, signUpService } from './SignUp.service';
 import Validator from '../../../utils/Validators';
+import ErrorMsg from '../../../components/ErrorMsg';
 
 const SignUp = () => {
   const OTP_STATUS = {
@@ -13,11 +13,11 @@ const SignUp = () => {
     SENT: 'SENT',
   }
   const navigate = useNavigate();
-  const [form, setForm] = useState({ firstName: '', lastName: '', email: '', otp: '', password: ''});
+  const [form, setForm] = useState({ firstName: '', lastName: '', email: '', otp: '', password: '', confirmPassword: ''});
   const [otpStatus, setOtpStatus] = useState(OTP_STATUS.NOT_SENT);
 
-  const [sendOTPData, sendOtpError, sendOtpLoading, fetchOtp] = useAxios();
-  const [signUpData, signUpError, signUpLoading, fetchSignup] = useAxios();
+  const [sendOTPData, sendOtpError, sendOtpLoading, fetchOtp, setSendOtpError] = useAxios();
+  const [signUpData, signUpError, signUpLoading, fetchSignup, setSignUpError] = useAxios();
 
   useEffect(() => {
     if (sendOTPData?.success){
@@ -29,7 +29,7 @@ const SignUp = () => {
     if (signUpData?.success){
       navigate('/signin')
     }
-  })
+  }, [signUpData])
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -37,18 +37,29 @@ const SignUp = () => {
   };
 
   const validateForm = useCallback(() => {
+    if (!form.firstName) return 'First Name is required'
     if (!form.email) return 'Email is required';
-    if (!Validator.isValidEmail(form.email)) return 'Please enter a valid email';
-    if (!form.otp) return 'Please enter otp';
-    if (!form.password) return 'Please enter password';
+    if (!Validator.isValidEmail(form.email)) return 'Invalid Email';
+    if (otpStatus === OTP_STATUS.NOT_SENT){
+      return 'Verify the Email'
+    }
+    if (!form.otp) return 'OTP is required';
+    if (!form.password) return 'Password is required';
+    if (form.password !== form.confirmPassword) return 'Password doesnot match'
     return null;
   }, [form]);
 
+  const resetStates = () => {
+    setSendOtpError(() => '');
+    setSignUpError(() => '');
+  }
+
   const handleSubmit = (event) => {
     event.preventDefault();
+    resetStates();
     const error = validateForm();
     if (error) {
-      signUpError(error);
+      setSignUpError(error);
       return;
     }
 
@@ -63,16 +74,11 @@ const SignUp = () => {
   };
 
   const handleOtp = () => {
-      fetchOtp(sendOtpService({
+      resetStates();
+      fetchOtp(sendSignUpOtpService({
         'email': form.email
       }))
   }
-
-  const renderButton = (text, onClick, loading) => (
-    <Button onClick={onClick} fullWidth variant="contained" sx={{ mt: 3, mb: 2 }}>
-      {loading ? <CircularProgressLoader /> : text}
-    </Button>
-  );
 
   return (
     <Container component="main" maxWidth="xs">
@@ -83,7 +89,7 @@ const SignUp = () => {
       >
         <Typography component="h1" variant="h5">Sign Up</Typography>
         <Box component="form" onSubmit={handleSubmit} noValidate sx={{ mt: 1, width: '100%' }}>
-          <Box component="form" onSubmit={handleSubmit} noValidate sx={{ mt: 1, width: '100%', display: 'flex', flexDirection: 'row', }}>
+          <Box component="form" sx={{ mt: 1, width: '100%', display: 'flex', flexDirection: 'row', }}>
             <TextField
               margin="normal" fullWidth label="First Name" name="firstName"
               autoFocus required value={form.firstName} onChange={handleInputChange}
@@ -97,7 +103,7 @@ const SignUp = () => {
           <TextField
             margin="normal" fullWidth label="Email Address" name="email"
             required value={form.email} onChange={handleInputChange}
-            slotProps={{ input: {readOnly: otpStatus == OTP_STATUS.SENT }, }}
+            slotProps={{ input: {readOnly: otpStatus === OTP_STATUS.SENT }, }}
           />
           {
             otpStatus === OTP_STATUS.NOT_SENT && form.email && 
@@ -116,8 +122,13 @@ const SignUp = () => {
             margin="normal" fullWidth name="password" label="Password" type="password"
             required value={form.password} onChange={handleInputChange}
           />
+          <TextField type='submit'
+            margin="normal" fullWidth name="confirmPassword" label="Confirm Password" type="password"
+            required value={form.confirmPassword} onChange={handleInputChange}
+          />
+          {(signUpError || sendOtpError) && <ErrorMsg errorState={[signUpError, sendOtpError]} />}
           <Button type='submit' fullWidth variant="contained" sx={{ mt: 3, mb: 2 }}>
-            Sign Up
+            {signUpLoading ? <CircularProgressLoader /> :'Sign Up'}
           </Button>
         </Box>
         <Box

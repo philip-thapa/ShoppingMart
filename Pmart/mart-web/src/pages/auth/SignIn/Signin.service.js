@@ -9,6 +9,6 @@ export const signInService = (payload) => {
     return authService.post(Urls.SIGN_IN, payload);
 };
 
-export const sendOtpService = (payload) => {
-    return authService.post(Urls.SEND_OTP, payload);
+export const sendSignInOtpService = (payload) => {
+    return authService.post(Urls.SEND_SIGN_IN_OTP, payload);
 }

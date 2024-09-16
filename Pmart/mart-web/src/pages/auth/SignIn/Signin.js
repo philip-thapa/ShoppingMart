@@ -2,7 +2,7 @@ import React, { useEffect, useState, useCallback } from 'react';
 import { useDispatch } from 'react-redux';
 import { TextField, Button, Container, Typography, Box } from '@mui/material';
 import useAxios from '../../../useAxios';
-import { sendOtpService, signInService } from './Signin.service';
+import { sendSignInOtpService, signInService } from './Signin.service';
 import { storeToken } from '../../../authHelper';
 import { login } from '../../../redux/authSlice';
 import CircularProgressLoader from '../../../components/CircularProgress';
@@ -16,7 +16,7 @@ const SignIn = () => {
   const [otpSent, setOtpSent] = useState(false);
 
   const [signInData, signInError, signInLoading, postSignIn, setSignInError] = useAxios();
-  const [sendOTPData, sendOtpError, sendOtpLoading, fetchOtp] = useAxios();
+  const [sendOTPData, sendOtpError, sendOtpLoading, fetchOtp, setSendOtpError] = useAxios();
 
   const dispatch = useDispatch();
 
@@ -66,18 +66,19 @@ const SignIn = () => {
       setSignInError('Please enter a valid email');
       return;
     }
-    fetchOtp(sendOtpService({ isOtp: true, email: form.email }));
+    fetchOtp(sendSignInOtpService({ email: form.email }));
   };
 
   const resetStates = () => {
     setForm({ email: '', password: '', otp: '' });
     setSignInError('');
+    setSendOtpError('');
     setOtpSent(false);
     setIsOtp((prev) => !prev);
   };
 
   const renderButton = (text, onClick, loading) => (
-    <Button onClick={onClick} fullWidth variant="contained" sx={{ mt: 3, mb: 2 }}>
+    <Button type='submit' onClick={onClick} fullWidth variant="contained" sx={{ mt: 3, mb: 2 }}>
       {loading ? <CircularProgressLoader /> : text}
     </Button>
   );
@@ -108,7 +109,7 @@ const SignIn = () => {
               autoComplete="current-password" value={form.password} onChange={handleInputChange}
             />
           )}
-          {signInError && <ErrorMsg errorState={[signInError, sendOtpError]} />}
+          {(signInError || sendOtpError) && <ErrorMsg errorState={[signInError, sendOtpError]} />}
           {!otpSent && isOtp && renderButton('Generate OTP', generateOtp, sendOtpLoading)}
           {(isOtp && otpSent || !isOtp) && renderButton('Login', handleSubmit, signInLoading)}
         </Box>

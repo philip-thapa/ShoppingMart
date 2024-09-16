@@ -22,6 +22,12 @@ class ERROR_MSG:
 
     INVALID_OTP = 'Invalid OTP'
 
+    USER_DOESNOT_EXIST = 'User doesnot exists'
+
+    INVALID_CREDENTIALS = 'Invalid Credentails'
+
+    USER_ALREADY_EXIST = 'User already exist'
+
 
 class ADDRESS_CONSTANTS:
 

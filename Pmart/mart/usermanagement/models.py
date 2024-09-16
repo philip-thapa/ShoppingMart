@@ -1,3 +1,5 @@
+from email.policy import default
+
 from django.contrib.auth.models import AbstractUser
 from django.core.exceptions import ValidationError
 from django.db import models
@@ -121,4 +123,12 @@ class Address(CustomModel):
     def save(self, *args, **kwargs):
         self.clean()
         super().save(*args, **kwargs)
+
+
+class OtpRequests(CustomModel):
+    email = models.CharField(max_length=56, db_column='Email')
+    count = models.IntegerField(db_column='Count', default=0)
+
+    class Meta:
+        db_table = 'OtpRequests'
 

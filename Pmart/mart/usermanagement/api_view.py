@@ -4,11 +4,35 @@ from rest_framework.views import APIView
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from rest_framework_simplejwt.views import TokenObtainPairView
 
-from usermanagement.constants import ERROR_MSG
+from usermanagement.constants import ERROR_MSG, AUTHENTICATION_MSG
 from usermanagement.managers.address_manager import AddressManager
 from usermanagement.managers.authentication_manager import SignUpManager, OTPManager
+from usermanagement.models import CustomUser
 from usermanagement.user_exceptions import UserException, OTPException, AddressException
 from utils.validators import Validators
+
+
+@authentication_classes([])
+@permission_classes([])
+class SendSignUpOTP(APIView):
+
+    def post(self, request):
+        try:
+            data = request.data
+            email = data.get('email').strip()
+            if CustomUser.objects.filter(email=email).exists():
+                raise UserException(ERROR_MSG.USER_ALREADY_EXIST)
+            OTPManager(
+                email,
+                AUTHENTICATION_MSG.ACTIVATE_ACCOUNT_HEADER,
+                AUTHENTICATION_MSG.ACTIVATE_ACCOUNT_BODY).send_otp()
+            return Response({'success': True}, 200)
+        except UserException as e:
+            return Response(str(e), 500)
+        except OTPException as e:
+            return Response(str(e), 500)
+        except Exception as e:
+            return Response(str(e), 500, exception=True)
 
 
 @authentication_classes([])
@@ -19,7 +43,7 @@ class SignUp(APIView):
         try:
             data = request.data
             SignUpManager(data).signup()
-            return Response({'msg': 'success'}, 200)
+            return Response({'success': True}, 200)
         except UserException as e:
             return Response(str(e), 500)
         except Exception as e:
@@ -28,13 +52,15 @@ class SignUp(APIView):
 
 @authentication_classes([])
 @permission_classes([])
-class SendOTP(APIView):
+class SendSignInOtp(APIView):
 
     def post(self, request):
         try:
             data = request.data
-            is_sign_in = True if data.get('isOtp') else False
-            OTPManager.send_otp(data.get('email', '').strip(), is_sign_in)
+            email = data.get('email').strip()
+            if not CustomUser.objects.filter(email=email).exists():
+                raise UserException(ERROR_MSG.USER_DOESNOT_EXIST)
+            OTPManager(email, AUTHENTICATION_MSG.SIGN_IN_HEADER, AUTHENTICATION_MSG.SIGN_IN_BODY).send_otp()
             return Response({'success': True}, 200)
         except UserException as e:
             return Response(str(e), 500)
@@ -53,7 +79,25 @@ class ValidateOTP(APIView):
             data = request.data
             otp = data.get('otp', '').strip()
             email = data.get('email', '').strip()
-            return Response({'success': OTPManager.validate_otp(otp, email)}, 200)
+            return Response({'success': OTPManager(email).validate_otp(otp)}, 200)
+        except UserException as e:
+            return Response(str(e), 500)
+        except OTPException as e:
+            return Response(str(e), 500)
+        except Exception as e:
+            return Response(str(e), 500, exception=True)
+
+
+class SendOTP(APIView):
+
+    def post(self, request):
+        try:
+            data = request.data
+            # email = data.get('email')
+            # header = None
+            # msg = None
+            # OTPManager(email, header, msg).send_otp()
+            return Response({'success': True}, 200)
         except UserException as e:
             return Response(str(e), 500)
         except OTPException as e:
@@ -74,7 +118,9 @@ class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
             data["success"] = True
             return data
         except Exception as e:
-            raise UserException('Invalid credentials')
+            if not CustomUser.objects.filter(email=attrs.get('email')).exists():
+                raise UserException(ERROR_MSG.USER_DOESNOT_EXIST)
+            raise UserException(ERROR_MSG.INVALID_CREDENTIALS)
 
 
 class MyTokenObtainPairView(TokenObtainPairView):

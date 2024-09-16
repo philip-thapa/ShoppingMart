@@ -5,8 +5,8 @@ import { HttpAxiosService } from "../../../HttpAxiosService";
 
 const authService = new HttpAxiosService(BASE_URL);
 
-export const sendOtpService = (payload) => {
-    return authService.post(Urls.SEND_OTP, payload);
+export const sendSignUpOtpService = (payload) => {
+    return authService.post(Urls.SEND_SIGN_UP_OTP, payload);
 }
 
 export const verifyOtpService = (payload) => {
