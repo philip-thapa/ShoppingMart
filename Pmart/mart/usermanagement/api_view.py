@@ -2,6 +2,7 @@ from rest_framework.decorators import authentication_classes, permission_classes
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
+from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.views import TokenObtainPairView
 
 from usermanagement.constants import ERROR_MSG, AUTHENTICATION_MSG
@@ -42,8 +43,14 @@ class SignUp(APIView):
     def post(self, request):
         try:
             data = request.data
-            SignUpManager(data).signup()
-            return Response({'success': True}, 200)
+            user = SignUpManager(data).signup()
+            refresh = RefreshToken.for_user(user)
+            access_token = str(refresh.access_token)
+            return Response({
+                'success': True,
+                'refresh': str(refresh),
+                'access': access_token,
+            }, 200)
         except UserException as e:
             return Response(str(e), 500)
         except Exception as e:
@@ -139,6 +146,16 @@ class MyTokenObtainPairView(TokenObtainPairView):
         except Exception as e:
             if request.data.get('otp'):
                 return Response(ERROR_MSG.INVALID_OTP, 500)
+            return Response(str(e), 500)
+
+
+class GetUserDetails(APIView):
+
+    def get(self, request):
+        try:
+            user_details = request.user
+            return Response({'success': True, 'user_details': user_details}, 200)
+        except Exception as e:
             return Response(str(e), 500)
 
 

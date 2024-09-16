@@ -3,7 +3,7 @@ import { useDispatch } from 'react-redux';
 import { TextField, Button, Container, Typography, Box } from '@mui/material';
 import useAxios from '../../../useAxios';
 import { sendSignInOtpService, signInService } from './Signin.service';
-import { storeToken } from '../../../authHelper';
+import { setAccessToken } from '../../../authHelper';
 import { login } from '../../../redux/authSlice';
 import CircularProgressLoader from '../../../components/CircularProgress';
 import Validator from '../../../utils/Validators';
@@ -21,10 +21,14 @@ const SignIn = () => {
   const dispatch = useDispatch();
 
   useEffect(() => {
-    if (signInData?.success) {
-      storeToken(signInData?.access, signInData?.refresh);
-      dispatch(login());
-    }
+    const handleSignIn = async () => {
+      if (signInData?.success) {
+        await setAccessToken(signInData.access, signInData.refresh);
+        dispatch(login());
+      }
+    };
+
+    handleSignIn();
   }, [signInData, dispatch]);
 
   useEffect(() => {

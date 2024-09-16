@@ -1,5 +1,5 @@
 import axios from "axios";
-import {getToken} from './authHelper'
+import {getAccessToken} from './authHelper'
 
 
 export class HttpAxiosService {
@@ -13,7 +13,7 @@ export class HttpAxiosService {
   }
 
   createAxiosInstances() {
-    const token = getToken();
+    const token = getAccessToken();
 
     this.axiosInstance = axios.create({
       baseURL: this.baseURL,

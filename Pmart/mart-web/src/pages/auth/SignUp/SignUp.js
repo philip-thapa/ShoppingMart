@@ -1,23 +1,27 @@
 import React, {useState, useCallback, useEffect } from 'react';
 import { TextField, Button, Container, Typography, Box } from '@mui/material';
 import CircularProgressLoader from '../../../components/CircularProgress';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import useAxios from '../../../useAxios';
 import { sendSignUpOtpService, signUpService } from './SignUp.service';
 import Validator from '../../../utils/Validators';
 import ErrorMsg from '../../../components/ErrorMsg';
+import { setAccessToken, storeToken } from '../../../authHelper';
+import { login } from '../../../redux/authSlice';
+import { useDispatch } from 'react-redux';
 
 const SignUp = () => {
   const OTP_STATUS = {
     NOT_SENT: 'NOT_SENT',
     SENT: 'SENT',
   }
-  const navigate = useNavigate();
   const [form, setForm] = useState({ firstName: '', lastName: '', email: '', otp: '', password: '', confirmPassword: ''});
   const [otpStatus, setOtpStatus] = useState(OTP_STATUS.NOT_SENT);
 
   const [sendOTPData, sendOtpError, sendOtpLoading, fetchOtp, setSendOtpError] = useAxios();
   const [signUpData, signUpError, signUpLoading, fetchSignup, setSignUpError] = useAxios();
+
+  const dispatch = useDispatch();
 
   useEffect(() => {
     if (sendOTPData?.success){
@@ -26,10 +30,15 @@ const SignUp = () => {
   }, [sendOTPData])
 
   useEffect(() => {
-    if (signUpData?.success){
-      navigate('/signin')
+
+    const handleSignUp = async () => {
+      if (signUpData?.success){
+        setAccessToken(signUpData?.access, signUpData?.refresh);
+        dispatch(login());
+      }
     }
-  }, [signUpData])
+    handleSignUp();
+  }, [signUpData, dispatch])
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;

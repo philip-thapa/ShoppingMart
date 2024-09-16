@@ -39,14 +39,14 @@ class SignUpManager:
         if not OTPManager(self.email).validate_otp(self.otp):
             raise OTPException('Invalid OTP')
         try:
-            CustomUser.objects.create_user(
+            user = CustomUser.objects.create_user(
                 email=self.email,
                 password=self.password,
                 phone=self.phone,
                 firstname=self.firstname,
                 lastname=self.lastname,
             )
-            return
+            return user
         except IntegrityError as e:
             raise UserException('User account already exists')
 
