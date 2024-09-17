@@ -36,7 +36,6 @@ const AppRoutes = () => {
 
     
     const PrivateRoute = () => {
-        console.log('length',userDetailsData?.user_details)
         if (!isLoggedIn){
             return <Navigate to="/signin" />
         } 
