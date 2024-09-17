@@ -1,8 +1,11 @@
 import React from 'react'
+import BaseComponent from './Base'
 
 function Category() {
   return (
-    <div>Category Management</div>
+    <BaseComponent headerTitle="Category">
+      test
+    </BaseComponent>
   )
 }
 

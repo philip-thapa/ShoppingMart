@@ -155,10 +155,12 @@ class GetUserDetails(APIView):
     def get(self, request):
         try:
             user = request.user
-            user_details = {}
-            user_details['name'] = user.name
-            user_details['roles'] = user.roles
-            user_details['email'] = user.email
+            user_details = {
+                'name': user.name,
+                'roles': user.roles,
+                'email': user.email,
+                'is_internal': user.is_staff
+            }
             return Response({'success': True, 'user_details': user_details}, 200)
         except Exception as e:
             return Response(str(e), 500)

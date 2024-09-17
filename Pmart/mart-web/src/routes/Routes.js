@@ -39,7 +39,7 @@ const AppRoutes = () => {
         if (!isLoggedIn){
             return <Navigate to="/signin" />
         } 
-        if (userDetailsData?.user_details?.roles.length) {
+        if (userDetailsData?.user_details?.is_internal) {
             return <InternalRoutes />
         }
         return <ExternalRoutes />

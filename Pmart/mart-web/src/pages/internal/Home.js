@@ -19,7 +19,7 @@ function Home() {
         Mart Modules
       </Typography>
       <Grid2 container spacing={3}>
-        {INTERNAL_MODULES.map((module, index) => (
+        {INTERNAL_MODULES.slice(1).map((module, index) => (
           <Grid2 item xs={12} sm={6} md={4} lg={2} key={index}>
             <Card 
               onClick={() => handleCardClick(module.path)} 
