@@ -156,7 +156,7 @@ class GetUserDetails(APIView):
         try:
             user = request.user
             user_details = {}
-            user_details['name'] = user.firstname + " " + user.lastname
+            user_details['name'] = user.name
             user_details['roles'] = user.roles
             user_details['email'] = user.email
             return Response({'success': True, 'user_details': user_details}, 200)

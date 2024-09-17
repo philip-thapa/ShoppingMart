@@ -1,5 +1,6 @@
 from email.policy import default
 
+from django.contrib.auth.base_user import AbstractBaseUser
 from django.contrib.auth.models import AbstractUser
 from django.core.exceptions import ValidationError
 from django.db import models
@@ -44,7 +45,7 @@ class CustomUserManager(BaseUserManager):
 # Create your models here.
 
 
-class CustomUser(AbstractUser):
+class CustomUser(AbstractBaseUser):
     gender = (
         ('Male', 'Male'),
         ('Female', 'Female',),
@@ -54,19 +55,18 @@ class CustomUser(AbstractUser):
         ('A', 'A'),
         ('I', 'I')
     )
-    email = models.CharField(db_column='email',max_length=56, unique=True)
-    phone = models.CharField(db_column='phone', max_length=10, blank=True, null=True)
-    firstname = models.CharField(db_column='firstName', max_length=16, blank=False, null=False)
-    lastname = models.CharField(db_column='lastName', max_length=16, blank=True, null=True)
-    gender = models.CharField(db_column='gender', max_length=10, blank=True, null=True, choices=gender)
-    status = models.CharField(db_column='status', max_length=1, choices=active, default='A')
-    created_at = models.DateTimeField(db_column='createdAt', default=timezone.now)
-    modified_at = models.DateTimeField(db_column='modifiedAt', default=timezone.now)
-    date_of_birth = models.DateField(db_column='dateOfBirth', null=True, blank=True)
-    loyalty_points = models.IntegerField(db_column='loyaltyPoints', default=0)
-    profile_picture = models.ImageField(upload_to='profile_photos/', blank=True, null=True, db_column='profilePicture')
-    is_staff = models.BooleanField(default=False, db_column='isStaff')
-    roles = JSONField(db_column='roles', default=list)
+    email = models.CharField(db_column='Email', max_length=56, unique=True)
+    phone = models.CharField(db_column='Phone', max_length=10, blank=True, null=True)
+    name = models.CharField(db_column='Name', max_length=16, blank=False, null=False)
+    gender = models.CharField(db_column='Gender', max_length=10, blank=True, null=True, choices=gender)
+    status = models.CharField(db_column='Status', max_length=1, choices=active, default='A')
+    created_at = models.DateTimeField(db_column='CreatedAt', default=timezone.now)
+    modified_at = models.DateTimeField(db_column='ModifiedAT', default=timezone.now)
+    date_of_birth = models.DateField(db_column='DOB', null=True, blank=True)
+    loyalty_points = models.IntegerField(db_column='LoyalityPoints', default=0)
+    profile_picture = models.ImageField(upload_to='profile_photos/', blank=True, null=True, db_column='Photo')
+    is_staff = models.BooleanField(default=False, db_column='IsStaff')
+    roles = JSONField(db_column='Roles', default=list)
 
     objects = CustomUserManager()
 
@@ -79,16 +79,16 @@ class CustomUser(AbstractUser):
 
 class Address(CustomModel):
 
-    user_id = models.ForeignKey(CustomUser, db_column='userId', on_delete=models.CASCADE, related_name='addresses',
+    user_id = models.ForeignKey(CustomUser, db_column='UserID', on_delete=models.CASCADE, related_name='addresses',
                                 null=False, blank=False)
-    full_name = models.CharField(max_length=56, db_column='fullName', null=False, blank=False)
-    phone_number = models.CharField(max_length=10, db_column='phoneNo', null=False, blank=False)
-    pincode = models.CharField(max_length=8, db_column='pincode', null=False, blank=False)
-    state = models.CharField(max_length=56, db_column='state', null=False, blank=False)
-    city = models.CharField(max_length=56, db_column='city', null=False, blank=False)
-    address = models.TextField(db_column='address', null=False, blank=False)
-    landmark = models.CharField(max_length=256, db_column='landmark', null=True, blank=True)
-    address_type = models.CharField(max_length=8, null=False, db_column='addressType', blank=False,
+    full_name = models.CharField(max_length=56, db_column='Name', null=False, blank=False)
+    phone_number = models.CharField(max_length=10, db_column='Phone', null=False, blank=False)
+    pincode = models.CharField(max_length=8, db_column='Pincode', null=False, blank=False)
+    state = models.CharField(max_length=56, db_column='State', null=False, blank=False)
+    city = models.CharField(max_length=56, db_column='City', null=False, blank=False)
+    address = models.TextField(db_column='Address', null=False, blank=False)
+    landmark = models.CharField(max_length=256, db_column='Landmark', null=True, blank=True)
+    address_type = models.CharField(max_length=8, null=False, db_column='AddressType', blank=False,
                                     default=ADDRESS_CONSTANTS.ADDRESS_TYPES[0])
 
     class Meta:
