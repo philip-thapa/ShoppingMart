@@ -12,3 +12,7 @@ export const signInService = (payload) => {
 export const sendSignInOtpService = (payload) => {
     return authService.post(Urls.SEND_SIGN_IN_OTP, payload);
 }
+
+export const getUserDetailsService = () => {
+    return authService.get(Urls.GET_USER_DETAILS);
+}

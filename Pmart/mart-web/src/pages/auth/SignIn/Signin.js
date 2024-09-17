@@ -21,14 +21,13 @@ const SignIn = () => {
   const dispatch = useDispatch();
 
   useEffect(() => {
-    const handleSignIn = async () => {
-      if (signInData?.success) {
-        await setAccessToken(signInData.access, signInData.refresh);
-        dispatch(login());
-      }
-    };
-
-    handleSignIn();
+    if (signInData?.success) {
+      setAccessToken(signInData.access, signInData.refresh).then(() => {
+        dispatch(login(true))
+      }).catch(err=>{
+        console.log(err)
+      })
+    }
   }, [signInData, dispatch]);
 
   useEffect(() => {

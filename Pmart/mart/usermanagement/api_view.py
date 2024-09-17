@@ -1,3 +1,4 @@
+from django.forms import model_to_dict
 from rest_framework.decorators import authentication_classes, permission_classes
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -153,7 +154,11 @@ class GetUserDetails(APIView):
 
     def get(self, request):
         try:
-            user_details = request.user
+            user = request.user
+            user_details = {}
+            user_details['name'] = user.firstname + " " + user.lastname
+            user_details['roles'] = user.roles
+            user_details['email'] = user.email
             return Response({'success': True, 'user_details': user_details}, 200)
         except Exception as e:
             return Response(str(e), 500)

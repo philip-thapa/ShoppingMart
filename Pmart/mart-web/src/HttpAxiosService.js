@@ -1,9 +1,7 @@
 import axios from "axios";
-import {getAccessToken} from './authHelper'
-
+import { getAccessToken } from './authHelper';
 
 export class HttpAxiosService {
-  
   axiosInstance;
   axiosMuliPartInstance;
 
@@ -13,8 +11,6 @@ export class HttpAxiosService {
   }
 
   createAxiosInstances() {
-    const token = getAccessToken();
-
     this.axiosInstance = axios.create({
       baseURL: this.baseURL,
       withCredentials: true,
@@ -23,8 +19,7 @@ export class HttpAxiosService {
       headers: {
         'Content-Type': 'application/json',
         'Accept': 'application/json',
-        'Authorization': 'Bearer ' + token
-      }
+      },
     });
 
     this.axiosMuliPartInstance = axios.create({
@@ -33,10 +28,31 @@ export class HttpAxiosService {
       xsrfHeaderName: 'X-CSRFToken',
       xsrfCookieName: 'csrftoken',
       headers: {
-          'Content-Type': 'multipart/form-data',
-          'Accept': 'application/json',
-          'Authorization': 'Bearer ' + token
+        'Content-Type': 'multipart/form-data',
+        'Accept': 'application/json',
+      },
+    });
+
+    // Add request interceptor for handling the token asynchronously
+    this.axiosInstance.interceptors.request.use(async (config) => {
+      const token = await getAccessToken(); // Get the token asynchronously
+      if (token) {
+        config.headers['Authorization'] = 'Bearer ' + token; // Add token to the Authorization header
       }
+      return config;
+    }, (error) => {
+      return Promise.reject(error);
+    });
+
+    // Add request interceptor for the multipart instance as well
+    this.axiosMuliPartInstance.interceptors.request.use(async (config) => {
+      const token = await getAccessToken(); // Get the token asynchronously
+      if (token) {
+        config.headers['Authorization'] = 'Bearer ' + token; // Add token to the Authorization header
+      }
+      return config;
+    }, (error) => {
+      return Promise.reject(error);
     });
   }
 
@@ -50,6 +66,7 @@ export class HttpAxiosService {
       },
     };
   }
+
   fileDownload(url, params) {
     return {
       axiosInstance: this.axiosInstance,
@@ -58,6 +75,7 @@ export class HttpAxiosService {
       requestConfig:  {params, responseType: "blob" },
     };
   }
+
   post(url, data) {
     return {
       axiosInstance: this.axiosInstance,
@@ -75,9 +93,4 @@ export class HttpAxiosService {
       requestConfig: data
     };
   }
-
-  updateTokenAndInstances() {
-    this.createAxiosInstances();
-  }
-  
 }

@@ -1,29 +1,53 @@
 // Routes.js
-import React, {Suspense} from "react";
+import React, {Suspense, useEffect} from "react";
 import { BrowserRouter as Router, Route, Routes, Navigate } from "react-router-dom";
-import CategroyRoutes from "../pages/category/category.routes";
 import Loader from "../components/Loader";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
+import useAxios from "../useAxios";
+import { getUserDetailsService } from "../pages/auth/SignIn/Signin.service";
+import { checkAuthStatus, setUserDetails } from "../redux/authSlice";
 
 
 const SignInPage = React.lazy(() => import('../pages/auth/SignIn/Signin'));
 const SignUpPage = React.lazy(() => import('../pages/auth/SignUp/SignUp'));
-const HomePage = React.lazy(() => import('../pages/home/Home'));
+const ExternalRoutes = React.lazy(() => import('../pages/external/ExternalRoutes'));
+const InternalRoutes = React.lazy(() => import('../pages/internal/InternalRoutes'));
 
 
 const AppRoutes = () => {
+
+    const dispatch = useDispatch();
     const {isLoggedIn} = useSelector(store => store.authReducer);
 
-    const isAuthenticated = () => {
-        return !!isLoggedIn;
-    };
+    const [userDetailsData, userDetailsError, userDetailsLoading, fetchUserDetails] = useAxios();
+
+    useEffect(() => {
+        if (userDetailsData?.success){
+            dispatch(setUserDetails(userDetailsData?.user_details))
+        }
+    }, [userDetailsData, dispatch])
+
+    useEffect(() => {
+        dispatch(checkAuthStatus())
+        if (isLoggedIn) {
+            fetchUserDetails(getUserDetailsService())
+        }
+    }, [isLoggedIn])
+
     
-    const PrivateRoute = ({ children }) => {
-        return isAuthenticated() ? children : <Navigate to="/signin" />;
+    const PrivateRoute = () => {
+        console.log('length',userDetailsData?.user_details)
+        if (!isLoggedIn){
+            return <Navigate to="/signin" />
+        } 
+        if (userDetailsData?.user_details?.roles.length) {
+            return <InternalRoutes />
+        }
+        return <ExternalRoutes />
     };
     
     const PublicRoute = ({ children }) => {
-        return isAuthenticated() ? <Navigate to="/" /> : children;
+        return isLoggedIn ? <Navigate to="/" /> : children;
     };
 
     return (
@@ -33,15 +57,9 @@ const AppRoutes = () => {
                     <Route path="/signin" element={<PublicRoute><SignInPage /></PublicRoute>} />
                     <Route path="/signup" element={<PublicRoute><SignUpPage /></PublicRoute>} />
 
-                    <Route path="/" element={<PrivateRoute><HomePage /></PrivateRoute>} />
+                    <Route path="/*" element={<PrivateRoute></PrivateRoute>} />
 
-                    <Route path="/category/*" element={
-                        <PrivateRoute>
-                            <CategroyRoutes />
-                        </PrivateRoute>
-                    } />
-
-                    <Route path="*" element={isAuthenticated() ? <Navigate to="/" /> : <Navigate to="/signin" />} />
+                    <Route path="*" element={isLoggedIn ? <Navigate to="/" /> : <Navigate to="/signin" />} />
                 </Routes>
             </Suspense>
         </Router>
