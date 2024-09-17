@@ -2,6 +2,7 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Grid2, Card, CardContent, Typography } from '@mui/material';
 import { INTERNAL_MODULES } from './constants';
+import BaseComponent from './Base';
 
 
 function Home() {
@@ -12,6 +13,7 @@ function Home() {
   };
 
   return (
+    <BaseComponent>
     <div style={{ padding: '20px' }}>
       <Typography variant="h4" gutterBottom>
         Mart Modules
@@ -33,6 +35,7 @@ function Home() {
         ))}
       </Grid2>
     </div>
+    </BaseComponent>
   );
 }
 
