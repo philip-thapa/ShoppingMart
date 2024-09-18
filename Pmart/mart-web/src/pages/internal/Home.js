@@ -1,6 +1,6 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Card, CardContent, Typography } from '@mui/material';
+import { AppBar, Box, Button, Card, CardContent, IconButton, Toolbar, Typography } from '@mui/material';
 import Grid from '@mui/material/Grid';
 
 import { INTERNAL_MODULES } from './constants';
@@ -15,11 +15,8 @@ function Home() {
   };
 
   return (
-    <BaseComponent>
+    <BaseComponent title="Home" align='center'>
     <div style={{ padding: '20px' }}>
-      <Typography variant="h4" gutterBottom>
-        Mart Modules
-      </Typography>
       <Grid container spacing={3}>
         {INTERNAL_MODULES.slice(1).map((module, index) => (
           <Grid item xs={12} sm={6} md={4} lg={2} key={index}>

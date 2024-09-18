@@ -8,6 +8,7 @@ import TableHead from '@mui/material/TableHead';
 import TablePagination from '@mui/material/TablePagination';
 import TableRow from '@mui/material/TableRow';
 import BaseComponent from '../../../components/Internal/Base';
+import { Button } from '@mui/material';
 
 const columns = [
   { id: 'name', label: 'Name', minWidth: 170 },
@@ -71,10 +72,16 @@ const CustomerPage = () => {
     setPage(0);
   };
 
+  const header = () => (
+    <>
+      <Button variant="contained" color="inherit">Download</Button>
+    </>
+  );
+
   return (
-    <BaseComponent>
-    <Paper sx={{ width: '100%', overflow: 'hidden' }}>
-      <TableContainer sx={{ maxHeight: 440 }}>
+    <BaseComponent title="Users" actions={header()}>
+    <Paper sx={{ width: '100%', overflow: 'scroll' }}>
+      <TableContainer>
         <Table stickyHeader aria-label="sticky table">
           <TableHead>
             <TableRow>

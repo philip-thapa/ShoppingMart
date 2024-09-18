@@ -1,5 +1,6 @@
 import axios from "axios";
-import { getAccessToken } from './authHelper';
+import { getAccessToken, removeAccessToken } from './authHelper';
+import { useNavigate } from "react-router-dom";
 
 export class HttpAxiosService {
   axiosInstance;
@@ -54,7 +55,26 @@ export class HttpAxiosService {
     }, (error) => {
       return Promise.reject(error);
     });
+
+    this.axiosInstance.interceptors.response.use(
+      (response) => {
+        return response;
+      },
+      async (error) => {
+        if (error.response && error.response.data.code === 'token_not_valid') {
+          const message = error.response.data.messages[0].message;
+          
+          if (message === 'Token is invalid or expired') {
+            await removeAccessToken();
+            
+          }
+        }
+        return Promise.reject(error);
+      }
+    );
+
   }
+  
 
   get(url, params) {
     return {

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Drawer, IconButton, List, ListItem, ListItemText, Typography } from '@mui/material';
+import { AppBar, Button, Drawer, IconButton, List, ListItem, ListItemText, Toolbar, Typography } from '@mui/material';
 import DensityMediumIcon from '@mui/icons-material/DensityMedium';
 import ListItemIcon from '@mui/material/ListItemIcon';
 import Box from '@mui/material/Box';
@@ -12,7 +12,7 @@ import LogoutIcon from '@mui/icons-material/Logout';
 import { checkAuthStatus } from '../../redux/authSlice';
 import { INTERNAL_MODULES } from '../../pages/internal/constants';
 
-const BaseComponent = ({ title='Mart', children }) => {
+const BaseComponent = ({ title, align='center', actions, children }) => {
   const [open, setOpen] = useState(false);
 
   const navigate = useNavigate();
@@ -29,7 +29,7 @@ const BaseComponent = ({ title='Mart', children }) => {
   };
 
   const DrawerList = (
-    <Box sx={{ width: 250 }} role="presentation" onClick={toggleDrawer(false)}>
+    <Box sx={{ width: 300 }} role="presentation" onClick={toggleDrawer(false)}>
       <List>
         {INTERNAL_MODULES.map((module, index) => (
           <ListItem key={index} disablePadding>
@@ -63,29 +63,42 @@ const BaseComponent = ({ title='Mart', children }) => {
     <>
     <Box
       display="flex" 
-      alignItems="center" 
       flexDirection="row"
-      justifyContent="space-between" 
-      sx={{ padding: '10px 20px', backgroundColor: '#f5f5f5' }}>
-      <IconButton
-          edge="start"
-          color="inherit"
-          aria-label="open drawer"
-          onClick={toggleDrawer(true)}
-          sx={{ ml: 2 }}
-        >
-        <DensityMediumIcon />
-      </IconButton>
-      <Typography variant="h6" component="div" sx={{ position: 'absolute', left: '50%', transform: 'translateX(-50%)' }}>
-          {title}
-      </Typography>
+      justifyContent="flex-start"
+      sx={{
+        backgroundColor: '#f5f5f5',
+        boxShadow: '0px 2px 4px rgba(0, 0, 0, 0.1)', 
+      }}
+      >
+
+      <Box sx={{ flexGrow: 1 }}>
+        <AppBar position="static">
+          <Toolbar>
+            <IconButton edge="end" onClick={toggleDrawer(true)}>
+              <DensityMediumIcon />
+            </IconButton>
+            <Box
+              sx={{
+                flexGrow: 1,
+                display: 'flex',
+                justifyContent: align,
+                alignItems: 'center',
+              }}>
+              <Typography variant="h6" component="div">
+                {title}
+              </Typography>
+            </Box>
+            {actions}
+          </Toolbar>
+        </AppBar>
+      </Box>
     </Box>
-      
+
       <Drawer open={open} onClose={toggleDrawer(false)}>
         {DrawerList}
       </Drawer>
 
-      <div style={{ padding: '20px' }}>
+      <div>
         {children}
       </div>
     </>
