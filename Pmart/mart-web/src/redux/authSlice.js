@@ -20,7 +20,6 @@ export const authSlice = createSlice({
         },
 
         setUserDetails: (state, action) => {
-            console.log(action.payload)
             state.userDetails = action.payload;
         }
     }

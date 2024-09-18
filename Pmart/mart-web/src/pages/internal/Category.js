@@ -1,5 +1,6 @@
 import React from 'react'
-import BaseComponent from './Base'
+import BaseComponent from '../../components/Internal/Base'
+// import BaseComponent from './Base'
 
 function Category() {
   return (

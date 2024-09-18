@@ -1,8 +1,10 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Grid2, Card, CardContent, Typography } from '@mui/material';
+import { Card, CardContent, Typography } from '@mui/material';
+import Grid from '@mui/material/Grid';
+
 import { INTERNAL_MODULES } from './constants';
-import BaseComponent from './Base';
+import BaseComponent from '../../components/Internal/Base';
 
 
 function Home() {
@@ -18,11 +20,11 @@ function Home() {
       <Typography variant="h4" gutterBottom>
         Mart Modules
       </Typography>
-      <Grid2 container spacing={3}>
+      <Grid container spacing={3}>
         {INTERNAL_MODULES.slice(1).map((module, index) => (
-          <Grid2 item xs={12} sm={6} md={4} lg={2} key={index}>
+          <Grid item xs={12} sm={6} md={4} lg={2} key={index}>
             <Card 
-              onClick={() => handleCardClick(module.path)} 
+              onClick={() => handleCardClick(module.additionalPath)} 
               sx={{ cursor: 'pointer', '&:hover': { boxShadow: 6 } }}
             >
               <CardContent>
@@ -31,9 +33,9 @@ function Home() {
                 </Typography>
               </CardContent>
             </Card>
-          </Grid2>
+          </Grid>
         ))}
-      </Grid2>
+      </Grid>
     </div>
     </BaseComponent>
   );

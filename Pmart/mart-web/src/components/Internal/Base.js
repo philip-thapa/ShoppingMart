@@ -1,19 +1,18 @@
 import React, { useState } from 'react';
-import { Button, Drawer, IconButton, List, ListItem, ListItemText, Typography } from '@mui/material';
+import { Drawer, IconButton, List, ListItem, ListItemText, Typography } from '@mui/material';
 import DensityMediumIcon from '@mui/icons-material/DensityMedium';
 import ListItemIcon from '@mui/material/ListItemIcon';
 import Box from '@mui/material/Box';
 import Divider from '@mui/material/Divider';
 import ListItemButton from '@mui/material/ListItemButton';
-import InboxIcon from '@mui/icons-material/MoveToInbox';
-import MailIcon from '@mui/icons-material/Mail';
-import { INTERNAL_MODULES } from './constants';
 import { useNavigate } from 'react-router-dom';
 import { removeAccessToken } from '../../authHelper';
 import { useDispatch } from 'react-redux';
+import LogoutIcon from '@mui/icons-material/Logout';
 import { checkAuthStatus } from '../../redux/authSlice';
+import { INTERNAL_MODULES } from '../../pages/internal/constants';
 
-const BaseComponent = ({ headerTitle='Mart', children }) => {
+const BaseComponent = ({ title='Mart', children }) => {
   const [open, setOpen] = useState(false);
 
   const navigate = useNavigate();
@@ -36,16 +35,17 @@ const BaseComponent = ({ headerTitle='Mart', children }) => {
           <ListItem key={index} disablePadding>
             <ListItemButton>
               <ListItemIcon>
-                {index % 2 === 0 ? <InboxIcon /> : <MailIcon />}
+                {module.icon}
               </ListItemIcon>
-              <ListItemText primary={module.name} onClick={() => navigate(module.path)} />
+              <ListItemText primary={module.name} onClick={() => navigate(module.additionalPath)} />
             </ListItemButton>
           </ListItem>
         ))}
-        <ListItem>
+        <Divider />
+        <ListItem sx={{padding: 0}}>
             <ListItemButton>
               <ListItemIcon>
-                <MailIcon />
+                <LogoutIcon />
               </ListItemIcon>
               <ListItemText primary="Logout" onClick={() => {
                 removeAccessToken().then(res=>{
@@ -77,7 +77,7 @@ const BaseComponent = ({ headerTitle='Mart', children }) => {
         <DensityMediumIcon />
       </IconButton>
       <Typography variant="h6" component="div" sx={{ position: 'absolute', left: '50%', transform: 'translateX(-50%)' }}>
-          {headerTitle}
+          {title}
       </Typography>
     </Box>
       
