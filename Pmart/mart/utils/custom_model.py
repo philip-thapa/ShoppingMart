@@ -1,6 +1,7 @@
 from django.db import models
 from django.utils import timezone
 from rest_framework.exceptions import ValidationError
+from datetime import datetime
 
 
 class CustomManager(models.Manager):
@@ -9,8 +10,8 @@ class CustomManager(models.Manager):
 
 
 class CustomModel(models.Model):
-    createdAt = models.DateTimeField(default=timezone.now)
-    modifiedAt = models.DateTimeField(default=timezone.now)
+    createdAt = models.DateTimeField(db_column='CreatedAt', default=datetime.now)
+    modifiedAt = models.DateTimeField(db_column='ModifiedAt', default=datetime.now)
     isDeleted = models.BooleanField(default=False)
     objects = CustomManager()
 
@@ -19,8 +20,8 @@ class CustomModel(models.Model):
 
     def save(self, *args, **kwargs):
         if not self.id or not self.createdAt:
-            self.createdAt = timezone.now()
-        self.modifiedAt = timezone.now()
+            self.createdAt = datetime.now()
+        self.modifiedAt = datetime.now()
         super(CustomModel, self).save(*args, **kwargs)
 
     def delete(self, *args, **kwargs):

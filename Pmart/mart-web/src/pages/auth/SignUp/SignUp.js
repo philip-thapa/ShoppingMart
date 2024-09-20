@@ -98,7 +98,7 @@ const SignUp = () => {
       >
         <Typography component="h1" variant="h5">Sign Up</Typography>
         <Box component="form" onSubmit={handleSubmit} noValidate sx={{ mt: 1, width: '100%' }}>
-          <Box component="form" sx={{ mt: 1, width: '100%', display: 'flex', flexDirection: 'row', }}>
+          <Box sx={{ mt: 1, width: '100%', display: 'flex', flexDirection: 'row', }}>
             <TextField
               margin="normal" fullWidth label="First Name" name="firstName"
               autoFocus required value={form.firstName} onChange={handleInputChange}
@@ -113,6 +113,7 @@ const SignUp = () => {
             margin="normal" fullWidth label="Email Address" name="email"
             required value={form.email} onChange={handleInputChange}
             slotProps={{ input: {readOnly: otpStatus === OTP_STATUS.SENT }, }}
+            autoComplete="username"
           />
           {
             otpStatus === OTP_STATUS.NOT_SENT && form.email && 
@@ -129,9 +130,9 @@ const SignUp = () => {
           }
           <TextField
             margin="normal" fullWidth name="password" label="Password" type="password"
-            required value={form.password} onChange={handleInputChange}
+            required value={form.password} onChange={handleInputChange} autoComplete="new-password" 
           />
-          <TextField type='submit'
+          <TextField
             margin="normal" fullWidth name="confirmPassword" label="Confirm Password" type="password"
             required value={form.confirmPassword} onChange={handleInputChange}
           />

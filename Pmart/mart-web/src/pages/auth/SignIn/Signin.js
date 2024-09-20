@@ -69,6 +69,7 @@ const SignIn = () => {
       setSignInError('Please enter a valid email');
       return;
     }
+    setSignInError('');
     fetchOtp(sendSignInOtpService({ email: form.email }));
   };
 
@@ -113,7 +114,9 @@ const SignIn = () => {
             />
           )}
           {(signInError || sendOtpError) && <ErrorMsg errorState={[signInError, sendOtpError]} />}
-          {!otpSent && isOtp && renderButton('Generate OTP', generateOtp, sendOtpLoading)}
+          {(!otpSent && isOtp) && <Button onClick={generateOtp} fullWidth variant="contained" sx={{ mt: 3, mb: 2 }}>
+          {sendOtpLoading ? <CircularProgressLoader /> : 'Generate OTP'}
+          </Button>}
           {(isOtp && otpSent || !isOtp) && renderButton('Login', handleSubmit, signInLoading)}
         </Box>
         <Box sx={{ display: 'flex', justifyContent: 'space-between', width: '100%' }}>

@@ -1,12 +1,11 @@
-from email.policy import default
-
 from django.contrib.auth.base_user import AbstractBaseUser
-from django.contrib.auth.models import AbstractUser
 from django.core.exceptions import ValidationError
 from django.db import models
 from django.db.models import JSONField
 from django.utils import timezone
 from django.contrib.auth.models import BaseUserManager
+
+from datetime import datetime
 
 from usermanagement.constants import ADDRESS_CONSTANTS
 
@@ -60,13 +59,14 @@ class CustomUser(AbstractBaseUser):
     name = models.CharField(db_column='Name', max_length=16, blank=False, null=False)
     gender = models.CharField(db_column='Gender', max_length=10, blank=True, null=True, choices=gender)
     status = models.CharField(db_column='Status', max_length=1, choices=active, default='A')
-    created_at = models.DateTimeField(db_column='CreatedAt', default=timezone.now)
-    modified_at = models.DateTimeField(db_column='ModifiedAT', default=timezone.now)
     date_of_birth = models.DateField(db_column='DOB', null=True, blank=True)
     loyalty_points = models.IntegerField(db_column='LoyalityPoints', default=0)
     profile_picture = models.ImageField(upload_to='profile_photos/', blank=True, null=True, db_column='Photo')
     is_staff = models.BooleanField(default=False, db_column='IsStaff')
     roles = JSONField(db_column='Roles', default=list)
+
+    created_at = models.DateTimeField(db_column='CreatedAt', default=datetime.now())
+    modified_at = models.DateTimeField(db_column='ModifiedAt', default=datetime.now())
 
     objects = CustomUserManager()
 

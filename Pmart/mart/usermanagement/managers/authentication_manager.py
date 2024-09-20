@@ -43,8 +43,7 @@ class SignUpManager:
                 email=self.email,
                 password=self.password,
                 phone=self.phone,
-                firstname=self.firstname,
-                lastname=self.lastname,
+                name=self.firstname + ' ' + self.lastname,
             )
             return user
         except IntegrityError as e:
